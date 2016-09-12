@@ -7,13 +7,13 @@ package com.company;
  * Course:        CS 536-Compilers - 001
  * Project        1A
  *
- * Class:         sym.java
- * Purpose:       Define an individual sym (symbol) along with its attributes.
+ * Class:         Sym.java
+ * Purpose:       Define an individual Sym (symbol) along with its attributes.
  */
-public class sym {
+public class Sym {
     String sym;
 
-    public sym(String type){
+    public Sym(String type){
         this.sym = type;
     }
 
@@ -23,6 +23,6 @@ public class sym {
 
     public String toString(){
         //TODO: Add more to this later
-        return sym;
+        return this.sym;
     }
 }

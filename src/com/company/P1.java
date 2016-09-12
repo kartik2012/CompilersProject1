@@ -19,14 +19,57 @@ public class P1 {
     public static void main(String[] args) throws IOException, DuplicateSymException, EmptySymTableException{
         ArrayList<String> pageLines = openFile();
 
-        //Test creation of new SymTable.
-        SymTable sTable = new SymTable();
-
         symTest();
         addDeclTest();
+        scopeTests();
 
-        sTable.print();
+    }
 
+    public static void lookupTest() throws EmptySymTableException, DuplicateSymException{
+        String file = "SymTable.java";
+        String method = "lookupLocal(String name)";
+
+        //Test if EmptySymTableException returns when searching table without scopes.
+        try{
+            SymTable emptySymTable = new SymTable();
+            emptySymTable.addDecl("int", new Sym("int"));
+            emptySymTable.removeScope();
+            emptySymTable.lookupLocal("int");
+            //EmptySymTableException expected
+            error(file, method, "EmptySymTableException expected but not received");
+        }catch(DuplicateSymException e){
+            error(file, "addDecl", "Invalid duplicate exception thrown when testing emptyTable Exception for lookupLocal()");
+        }catch(EmptySymTableException e){
+            //expected
+        }catch(Exception e){
+            error(file, method, "Incorrect exception thrown when testing for EmptySymTableException.");
+        }
+
+        SymTable symTable = new SymTable();
+
+        //Test if correct key returns:
+        try{
+            symTable.addDecl("int", new Sym("int"));
+            Sym receivedSym = symTable.lookupLocal("int");
+            if(receivedSym == null){
+                error(file, method, "Not able to receive result when attempting to lookup locally");
+            }else if(receivedSym.getType() != "int"){
+                error(file, method, "Invalid Sym type being received when attempting to lookup Sym on local scope");
+            }
+        }catch(Exception e){
+            error(file, method, "Invalid exception type being caught when attempting to look up on local scope");
+        }
+
+        //Test if invalid key returns when bad key passed in:
+        try{
+            Sym receivedSym = symTable.lookupLocal("double");
+            //null expected
+            if(receivedSym != null){
+                error(file, method, "Invalid result returned when attempting to look up key that does not exist, locally. Null expected");
+            }
+        }catch(Exception e){
+            error(file, method, "Unexpected and invalid error caught when attempting to look up non-existant key, locally");
+        }
 
     }
 
@@ -124,6 +167,8 @@ public class P1 {
             error(file, "removeScope()", "EmptySymTableException expected after removing scope from empty list but not received.");
         }catch(EmptySymTableException e){
             //Error expected
+        }catch(Exception e){
+            error(file, "removeScope()", "Unidentified exception thrown, yet not expected when trying to remove scope with no scopes. ");
         }
     }
 
