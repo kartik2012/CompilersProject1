@@ -1,5 +1,4 @@
 package com.company;
-import sun.jvm.hotspot.debugger.cdbg.Sym;
 
 import java.util.*;
 
@@ -23,15 +22,15 @@ public class SymTable {
         mapList.add(new HashMap<String, Sym>());
     }
 
-    public void addDecl(String name, Sym sym) throws DuplicateSymException, EmptySymTableException{
+    public void addDecl(String name, Sym symbol) throws DuplicateSymException, EmptySymTableException{
         if(mapList.isEmpty()){
             throw new EmptySymTableException();
-        }else if(name == null || sym == null){
+        }else if(name == null || symbol == null){
             throw new NullPointerException();
         }else if(mapList.get(0).containsKey(name)){
             throw new DuplicateSymException();
         }else{
-            mapList.get(0).put(name, sym);
+            mapList.get(0).put(name, symbol);
         }
     }
 
@@ -71,7 +70,7 @@ public class SymTable {
     }
 
     public void print(){
-        System.out.println("\n Symb Table");
+        System.out.println("\nSymb Table");
 
         for (HashMap<String, Sym> map: mapList){
             System.out.println(map.toString() + '\n');
