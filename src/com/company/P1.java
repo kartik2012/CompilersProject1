@@ -9,8 +9,6 @@ package com.company;
  * Class:         P1.Java
  * Purpose:       Main Function to test functionality of Sym and SymTable.
  */
-import java.util.*;
-
 public class P1 {
     public static void main(String[] args) throws DuplicateSymException, EmptySymTableException{
         symTest();
@@ -18,6 +16,7 @@ public class P1 {
         scopeTests();
         localLookupTest();
         globalLookupTest();
+        printTest();
     }
 
     /*
@@ -248,6 +247,34 @@ public class P1 {
         }catch(Exception e){
             error(file, "removeScope()", "Unidentified exception thrown, yet not expected when trying to remove scope with no scopes. ");
         }
+    }
+
+    /*
+    Purpose: Test Printing functionality.
+    */
+    public static void printTest() throws EmptySymTableException, DuplicateSymException{
+        SymTable symTable = new SymTable();
+        String file = "SymTable.java";
+        String method = "print()";
+        System.out.println(">>Expected Print:\n>>>SymTable\n>>>{}\nActual Print:");
+        try{
+            symTable.print();
+        }catch(Exception e){
+            error(file, method, "Unexpected error found when attempting to print");
+        }
+
+        try{
+            symTable.addDecl("Int", new Sym("int"));
+            symTable.addScope();
+            symTable.addDecl("Double", new Sym("Double"));
+            System.out.println(">>Expected Print:\n>>>SymTable\n>>>{Double=Double}\n>>>\n>>>{Int=int}\nActualPrint:");
+            symTable.print();
+            System.out.println(">>Testing print statement for Sym\n>>> Expected: Double\nActual:");
+            System.out.println(symTable.lookupGlobal("Double").toString());
+        }catch(Exception e){
+            error(file, method, "Unexpected error found when attempting to print");
+        }
+
     }
 
     /*

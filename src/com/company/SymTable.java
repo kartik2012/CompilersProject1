@@ -13,15 +13,23 @@ import java.util.*;
  * Purpose:       Holds Symbol Table's main attributes.
  */
 
-//TODO: Can we move HashMaps to the end instead of the beginning?
 public class SymTable {
     private ArrayList<HashMap<String,Sym>> mapList;
 
+    /*
+    Purpose: Constructor for the Symbol Table.
+            Initializes a new Hashmap within the arraylist.
+    */
     public SymTable(){
         mapList = new ArrayList<HashMap<String,Sym>>();
         mapList.add(new HashMap<String, Sym>());
     }
 
+    /*
+    Purpose: Test for a range of errors within the global Lookup.
+    Paramaters: {String name} the name of the key the user wishes to set.
+                {Sym symbol} The symbol the user wishes to associate with the key.
+    */
     public void addDecl(String name, Sym symbol) throws DuplicateSymException, EmptySymTableException{
         if(mapList.isEmpty()){
             throw new EmptySymTableException();
@@ -34,10 +42,19 @@ public class SymTable {
         }
     }
 
+    /*
+    Purpose: Adds another scope by setting another HashMap to the front of the list.
+    */
     public void addScope(){
         mapList.add(0, new HashMap<String, Sym>());
     }
 
+    /*
+    Purpose: Performs a local lookup at the front-most HashMap for a Symbol.
+    Paramaters: {String name} defines the key of the element one wishes to
+                look up.
+    Return:     Sym-> The Symbol that the user is attempting to find.
+    */
     public Sym lookupLocal(String name) throws EmptySymTableException{
         if(mapList.isEmpty()){
             throw new EmptySymTableException();
@@ -48,6 +65,12 @@ public class SymTable {
         }
     }
 
+    /*
+    Purpose: Performs a global lookup into all of the hashmaps in the list.
+    Paramaters: {String name} defines the key of the element one wishes to
+            look up.
+    Return:     Sym-> The Symbol that the user is attempting to find.
+    */
     public Sym lookupGlobal(String name) throws EmptySymTableException{
         if(mapList.isEmpty()){
             throw new EmptySymTableException();
@@ -61,6 +84,9 @@ public class SymTable {
         return null;
     }
 
+    /*
+    Purpose: Removes a hashmap from the front of the list.
+    */
     public void removeScope() throws EmptySymTableException{
         if(mapList.isEmpty()){
             throw new EmptySymTableException();
@@ -69,6 +95,9 @@ public class SymTable {
         }
     }
 
+    /*
+    Purpose: Prints out the contents of the Symbol Table.
+    */
     public void print(){
         System.out.println("\nSymb Table");
 
