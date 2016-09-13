@@ -9,26 +9,23 @@ package com.company;
  * Class:         P1.Java
  * Purpose:       Main Function to test functionality of Sym and SymTable.
  */
-import java.io.*;
 import java.util.*;
 
 public class P1 {
-    //1. Test Duplicate Sym Exc
-    //2. Test EmptySymExc
-
-    public static void main(String[] args) throws IOException, DuplicateSymException, EmptySymTableException{
-        ArrayList<String> pageLines = openFile();
-
+    public static void main(String[] args) throws DuplicateSymException, EmptySymTableException{
         symTest();
         addDeclTest();
         scopeTests();
-
+        localLookupTest();
+        globalLookupTest();
     }
 
-    public static void lookupTest() throws EmptySymTableException, DuplicateSymException{
+    /*
+    Purpose: Test for a range of erros within the local Lookup.
+     */
+    public static void localLookupTest() throws EmptySymTableException, DuplicateSymException{
         String file = "SymTable.java";
         String method = "lookupLocal(String name)";
-
         //Test if EmptySymTableException returns when searching table without scopes.
         try{
             SymTable emptySymTable = new SymTable();
@@ -46,7 +43,6 @@ public class P1 {
         }
 
         SymTable symTable = new SymTable();
-
         //Test if correct key returns:
         try{
             symTable.addDecl("int", new Sym("int"));
@@ -71,8 +67,84 @@ public class P1 {
             error(file, method, "Unexpected and invalid error caught when attempting to look up non-existant key, locally");
         }
 
+        //Test if adding a scope impacts the local search.
+        try{
+            symTable.addScope();
+            //Should not find anything
+            if(symTable.lookupLocal("int") != null){
+                error(file, method, "Expected a null when attempting to do localSearch() after adsding a new scope, but received an invalid value");
+            }
+        }catch(Exception e){
+            error(file, method, "Invalid exception caught when attmepting to do local search after adding a new scope");
+        }
     }
 
+    /*
+    Purpose: Test for a range of errors within the global Lookup.
+    */
+    public static void globalLookupTest() throws EmptySymTableException, DuplicateSymException{
+
+        String file = "SymTable.java";
+        String method = "lookupGlobal(String name)";
+
+        //Test if EmptySymTableException returns when searching table without scopes.
+        try{
+            SymTable emptySymTable = new SymTable();
+            emptySymTable.addDecl("int", new Sym("int"));
+            emptySymTable.removeScope();
+            emptySymTable.lookupGlobal("int");
+            //EmptySymTableException expected
+            error(file, method, "EmptySymTableException expected but not received");
+        }catch(DuplicateSymException e){
+            error(file, "addDecl", "Invalid duplicate exception thrown when testing emptyTable Exception for lookupGlobal()");
+        }catch(EmptySymTableException e){
+            //expected
+        }catch(Exception e){
+            error(file, method, "Incorrect exception thrown when testing for EmptySymTableException.");
+        }
+
+        //Search all of the hashmaps for the Symbol.
+        SymTable symTable = new SymTable();
+        try{
+            symTable.addDecl("Int", new Sym("Int"));
+            symTable.addDecl("Double", new Sym("Double"));
+            symTable.addScope();
+            symTable.addDecl("Int2", new Sym("Int2"));
+            symTable.addDecl("Double2", new Sym("Double2"));
+            symTable.addScope();
+            boolean truth = true;
+            symTable.addDecl("Int3", new Sym("Int3"));
+            symTable.addDecl("Double3", new Sym("Double3"));
+            if(symTable.lookupGlobal("Int") == null) truth = false;
+            if(symTable.lookupGlobal("Double") == null) truth = false;
+            if(symTable.lookupGlobal("Int2") == null) truth = false;
+            if(symTable.lookupGlobal("Double2") == null) truth = false;
+            if(symTable.lookupGlobal("Int3") == null) truth = false;
+            if(symTable.lookupGlobal("Double3") == null) truth = false;
+
+            if(!truth){
+                error(file, method, "Unexpected null statement received when attempting to perform a global search");
+            }
+        }catch(EmptySymTableException e){
+            error(file, method, "Unexpected and invalid EmptySymTableException caught when attempting to perform valid global search");
+        }catch(Exception e){
+            error(file, method, "Unexpected and invalid exception caught when attempting to perform valid global search.");
+        }
+
+        try{
+            if(symTable.lookupGlobal("Harambe") != null){
+                error(file, method, "Expecting null return when looking up invalid key, yet received a non-null return value. ");
+            }
+            //expecting null
+        }catch(Exception e){
+            //Should not error out.
+            error(file, method, "Unexpected error caught when attempting to test false null value");
+        }
+    }
+
+    /*
+    Purpose: Test for a range of errors within the sym class and corresponding tests.
+    */
     public static void symTest(){
         String[] types = {"Int", "String", "Bool", ""};
         String file = "Sym.java";
@@ -86,6 +158,9 @@ public class P1 {
         }
     }
 
+    /*
+    Purpose: Test for a range of errors within the addDeclaration methods
+    */
     public static void addDeclTest() throws DuplicateSymException, EmptySymTableException{
         SymTable symTable = new SymTable();
         Sym[] symList = {new Sym("int"), new Sym("double"), new Sym("boolean")};
@@ -152,6 +227,9 @@ public class P1 {
         }
     }
 
+    /*
+    Purpose: Test for a range of errors within the scope methods
+    */
     public static void scopeTests() throws EmptySymTableException{
         SymTable symTable = new SymTable();
         Sym[] symList = {new Sym("int"), new Sym("double"), new Sym("boolean")};
@@ -172,43 +250,10 @@ public class P1 {
         }
     }
 
+    /*
+    Purpose: Standardized prompt for printing out errors.
+    */
     public static void error(String file, String errMethod, String err){
         System.out.println("error found: <File: " + file + " Method:" + errMethod + "> " + err);
-    }
-
-    public static ArrayList<String> openFile() throws IOException{
-
-        // The name of the file to open.
-        String fileName = "resources/P1InputFile.txt";
-        ArrayList<String> pageLines = new ArrayList<String>();
-
-        // This will reference one line at a time
-        String line = null;
-
-        try {
-            // FileReader reads text files in the default encoding.
-            FileReader fr =
-                    new FileReader(fileName);
-
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader =
-                    new BufferedReader(fr);
-
-            while((line = bufferedReader.readLine()) != null) {
-                pageLines.add(line);
-            }
-
-            // Always close files.
-            bufferedReader.close();
-        }
-        catch(FileNotFoundException ex) {
-            System.out.println("Unable to open file");
-        }
-        catch(IOException ex) {
-            System.out.println("Error reading file");
-        }
-
-        return pageLines;
-
     }
 }
