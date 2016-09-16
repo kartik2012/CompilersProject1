@@ -22,7 +22,6 @@ public class Sym {
     }
 
     public String toString(){
-        //TODO: Add more to this later
         return this.sym;
     }
 }
